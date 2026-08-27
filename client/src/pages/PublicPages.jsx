@@ -1387,7 +1387,6 @@ export function Account() {
                     <strong>Total ₹{Number(o.total).toLocaleString("en-IN")}</strong>
                   </div>
                   <div className="order-history-actions">
-                    <Link className="btn btn-soft" to={`/account?tab=orders&order=${o.id}`}>VIEW ORDER</Link>
                     <a className="btn btn-soft" href={`${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/me/orders/${o.id}/invoice`} download>DOWNLOAD INVOICE</a>
                   </div>
                   {isPaymentPending(o.payment_status) && (
@@ -1413,6 +1412,9 @@ export function Account() {
                         Remove pending order
                       </button>
                     </div>
+                  )}
+                  {o.order_status === "Cancelled" && (
+                    <button className="text-link danger" onClick={async () => { if (!confirm("Are you sure you want to remove this cancelled order from your order history?")) return; try { await api(`/me/orders/${o.id}`, { method: "DELETE" }); setData((current) => ({ ...current, orders: current.orders.filter((item) => item.id !== o.id) })); } catch (error) { alert(error.message); } }}>DELETE CANCELLED ORDER</button>
                   )}
                 </div>
               ))}
@@ -1527,16 +1529,29 @@ function Profile({ user }) {
 }
 
 export function Static({ title, children }) {
+  const [settings, setSettings] = useState({});
+  useEffect(() => {
+    if (title !== "About CURVE" && title !== "Contact") return;
+    api("/store-settings").then((result) => setSettings(result.settings || {})).catch(console.error);
+  }, [title]);
+  const isAbout = title === "About CURVE";
+  const managedTitle = isAbout ? settings.about_title : settings.contact_business_name;
+  const managedBody = isAbout
+    ? settings.about_content
+    : [settings.contact_address, settings.contact_city, settings.contact_state, settings.contact_country, settings.contact_postal_code].filter(Boolean).join(", ");
   return (
     <div className="page">
       <div className="container narrow content-page">
         <span className="eyebrow">CURVE</span>
-        <h1>{title}</h1>
-        {children || (
+        <h1>{managedTitle || title}</h1>
+        {managedBody ? <p>{managedBody}</p> : children || (
           <p>
             This page is editable through the Admin Panel in the production
             version.
           </p>
+        )}
+        {!isAbout && (settings.contact_phone || settings.contact_email || settings.contact_whatsapp || settings.contact_hours) && (
+          <p>{[settings.contact_phone, settings.contact_email, settings.contact_whatsapp, settings.contact_hours].filter(Boolean).join(" · ")}</p>
         )}
       </div>
     </div>
