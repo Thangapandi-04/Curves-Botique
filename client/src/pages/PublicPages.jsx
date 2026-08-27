@@ -1386,6 +1386,10 @@ export function Account() {
                     )}
                     <strong>Total ₹{Number(o.total).toLocaleString("en-IN")}</strong>
                   </div>
+                  <div className="order-history-actions">
+                    <Link className="btn btn-soft" to={`/account?tab=orders&order=${o.id}`}>VIEW ORDER</Link>
+                    <a className="btn btn-soft" href={`${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/me/orders/${o.id}/invoice`} download>DOWNLOAD INVOICE</a>
+                  </div>
                   {isPaymentPending(o.payment_status) && (
                     <div className="order-history-actions">
                       <Link className="btn btn-soft" to={`/payment/${o.id}`}>

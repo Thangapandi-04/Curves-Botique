@@ -183,6 +183,7 @@ CREATE TABLE orders (
   tax DECIMAL(12,2) NOT NULL DEFAULT 0,
   total DECIMAL(12,2) NOT NULL,
   coupon_code VARCHAR(80) NULL,
+  payment_method ENUM('Razorpay','COD') NOT NULL DEFAULT 'Razorpay',
   payment_status ENUM('Pending','Authorized','Paid','Failed','Refunded') NOT NULL DEFAULT 'Pending',
   order_status ENUM('Pending','Payment Pending','Paid','Processing','Packed','Shipped','Out for Delivery','Delivered','Cancelled','Returned','Refunded') NOT NULL DEFAULT 'Pending',
   shipping_name VARCHAR(120) NOT NULL,
@@ -254,6 +255,8 @@ CREATE TABLE invoices (
   id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
   order_id BIGINT UNSIGNED NOT NULL UNIQUE,
   invoice_number VARCHAR(60) NOT NULL UNIQUE,
+  invoice_status ENUM('issued','void') NOT NULL DEFAULT 'issued',
+  invoice_reference VARCHAR(255) NULL,
   issued_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
 );

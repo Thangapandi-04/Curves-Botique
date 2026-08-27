@@ -773,7 +773,7 @@ function Orders({ d, reload }) {
                   ))}
                 </select>
               </td>
-              <td>{o.email}</td>
+              <td>{o.email} <a className="text-link" href={`${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/admin/orders/${o.id}/invoice`} download>Invoice</a></td>
             </tr>
           ))}
         </tbody>
