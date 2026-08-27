@@ -20,6 +20,9 @@ const razorpayUpiConfig = {
     upi: true,
     card: true,
     netbanking: true,
+    emi: false,
+    wallet: false,
+    paylater: false,
   },
 };
 function logRazorpayCheckout(orderId, options) {
