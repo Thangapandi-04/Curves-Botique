@@ -1386,6 +1386,10 @@ export function Account() {
                     )}
                     <strong>Total ₹{Number(o.total).toLocaleString("en-IN")}</strong>
                   </div>
+                  <div className="order-history-totals">
+                    <span>Payment Type</span>
+                    <strong>{o.payment_method === "COD" ? "COD" : "Razorpay"}</strong>
+                  </div>
                   <div className="order-history-actions">
                     <a className="btn btn-soft" href={`${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/me/orders/${o.id}/invoice`} download>DOWNLOAD INVOICE</a>
                   </div>

@@ -100,6 +100,7 @@ export default function Admin() {
     const e = endpoints[tab] || endpoints.dashboard;
     try {
       const r = await api(e);
+      if (tab === "reviews") r.users = (await api("/admin/review-users")).users;
       setData(r);
     } catch (err) {
       alert(err.message);
@@ -743,6 +744,7 @@ function Orders({ d, reload }) {
             <th>Customer</th>
             <th>Total</th>
             <th>Payment</th>
+            <th>Payment Type</th>
             <th>Status</th>
             <th></th>
           </tr>
@@ -754,6 +756,7 @@ function Orders({ d, reload }) {
               <td>{o.full_name}</td>
               <td>₹{Number(o.total).toLocaleString("en-IN")}</td>
               <td>{o.payment_status}</td>
+              <td>{o.payment_type === "COD" ? "COD" : "Razorpay"}</td>
               <td>
                 <select
                   value={o.order_status}
@@ -1114,8 +1117,26 @@ function Videos({ d, reload }) {
   );
 }
 function Reviews({ d, reload }) {
+  const empty = { userId: "", customerName: "", rating: 5, reviewText: "", imageUrl: "", status: "Approved", displayOrder: 0 };
+  const [form, setForm] = useState(empty);
+  const [editing, setEditing] = useState(null);
+  const submit = async (event) => { event.preventDefault(); await api(editing ? `/admin/reviews/${editing}` : "/admin/reviews", { method: editing ? "PUT" : "POST", body: JSON.stringify(form) }); setForm(empty); setEditing(null); reload(); };
   return (
-    <div className="table-card">
+    <div>
+      <form className="admin-card" onSubmit={submit}>
+        <div className="admin-card-head"><h3>{editing ? "Edit Review" : "Add Review"}</h3><button className="btn btn-dark" type="submit">{editing ? "Save Review" : "Add Review"}</button></div>
+        <div className="form-grid">
+          <label>Customer name<input required value={form.customerName} onChange={(e) => setForm({ ...form, customerName: e.target.value })} /></label>
+          <label>Customer/user<select value={form.userId} onChange={(e) => setForm({ ...form, userId: e.target.value })}><option value="">No linked user</option>{(d.users || []).map((user) => <option value={user.id} key={user.id}>{user.full_name} ({user.email})</option>)}</select></label>
+          <label>Rating<select value={form.rating} onChange={(e) => setForm({ ...form, rating: e.target.value })}>{[1,2,3,4,5].map((rating) => <option key={rating}>{rating}</option>)}</select></label>
+          <label>Status<select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}><option>Pending</option><option>Approved</option><option>Rejected</option></select></label>
+          <label className="span-2">Review content<textarea required value={form.reviewText} onChange={(e) => setForm({ ...form, reviewText: e.target.value })} /></label>
+          <label>Image URL<input value={form.imageUrl} onChange={(e) => setForm({ ...form, imageUrl: e.target.value })} /></label>
+          <label>Display order<input type="number" value={form.displayOrder} onChange={(e) => setForm({ ...form, displayOrder: e.target.value })} /></label>
+        </div>
+        {editing && <button type="button" className="text-link" onClick={() => { setEditing(null); setForm(empty); }}>Cancel edit</button>}
+      </form>
+      <div className="table-card">
       <table>
         <thead>
           <tr>
@@ -1152,6 +1173,7 @@ function Reviews({ d, reload }) {
                 </select>
               </td>
               <td>
+                <button className="text-link" onClick={() => { setEditing(r.id); setForm({ userId: r.user_id || "", customerName: r.customer_name, rating: r.rating, reviewText: r.review_text, imageUrl: r.image_url || "", status: r.status, displayOrder: r.display_order || 0 }); }}>Edit</button>{" "}
                 <button
                   className="text-link danger"
                   onClick={async () => {
@@ -1166,6 +1188,7 @@ function Reviews({ d, reload }) {
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

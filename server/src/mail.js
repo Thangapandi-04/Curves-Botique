@@ -52,7 +52,7 @@ export async function notifyConfirmedOrder(orderId, paymentMethod) {
     ? `Your COD order ${order.order_code} has been confirmed successfully.`
     : `Your payment was successful and your order ${order.order_code} has been confirmed.`;
   const [existingCustomerNotification] = await pool.query('SELECT id FROM notifications WHERE user_id=? AND title=? AND message LIKE ? LIMIT 1', [order.user_id, 'Order confirmed', `%${order.order_code}%`]);
-  if (!existingCustomerNotification.length) await pool.query('INSERT INTO notifications(user_id,title,message,type) VALUES(?,?,?,?)', [order.user_id, 'Order confirmed', customerMessage, 'order']);
+  if (!existingCustomerNotification.length) await pool.query('INSERT INTO notifications(user_id,title,message,type) SELECT ?,?,?,? FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM notifications WHERE user_id=? AND title=? AND message LIKE ?)', [order.user_id, 'Order confirmed', customerMessage, 'order', order.user_id, 'Order confirmed', `%${order.order_code}%`]);
   for (const admin of admins) {
     const [[adminUser]] = await pool.query('SELECT id FROM users WHERE email=? LIMIT 1', [admin.email]);
     if (adminUser) {
