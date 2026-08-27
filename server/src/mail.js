@@ -20,6 +20,7 @@ function orderRows(items) {
 }
 
 export async function notifyConfirmedOrder(orderId, paymentMethod) {
+  console.info('[RAZORPAY_EMAIL]', JSON.stringify({ orderId, paymentMethod, action: 'start' }));
   const [[[order]], [items], [admins]] = await Promise.all([
     pool.query('SELECT o.*,u.email customer_email,u.full_name customer_name FROM orders o JOIN users u ON u.id=o.user_id WHERE o.id=? LIMIT 1', [orderId]),
     pool.query('SELECT product_name,quantity,subtotal FROM order_items WHERE order_id=? ORDER BY id', [orderId]),
@@ -33,13 +34,16 @@ export async function notifyConfirmedOrder(orderId, paymentMethod) {
   const transport = mailTransport();
   if (!transport) {
     console.warn('[Mail] SMTP is not configured; order emails were skipped', order.order_code);
+    console.info('[RAZORPAY_EMAIL]', JSON.stringify({ orderId, action: 'skipped', reason: 'smtp-not-configured' }));
   } else {
     const from = process.env.MAIL_FROM || process.env.SMTP_USER;
     const recipients = [order.customer_email, ...admins.map((admin) => admin.email)].filter(Boolean);
     try {
       await Promise.all(recipients.map((to) => transport.sendMail({ from, to, subject, html })));
+      console.info('[RAZORPAY_EMAIL]', JSON.stringify({ orderId, action: 'sent', recipientCount: recipients.length }));
     } catch (error) {
       console.error('[Mail] Order emails could not be sent', error.message);
+      console.info('[RAZORPAY_EMAIL]', JSON.stringify({ orderId, action: 'failed' }));
     }
   }
 

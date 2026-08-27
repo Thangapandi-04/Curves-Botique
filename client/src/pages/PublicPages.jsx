@@ -27,12 +27,17 @@ function logRazorpayCheckout(orderId, options) {
     testMode: options.key?.startsWith("rzp_test_") === true,
     keyPrefix: options.key?.slice(0, 9),
     orderId,
+    razorpayOrderId: options.order_id,
     currency: options.currency,
     methods: options.method,
   });
 }
 function isPaymentPending(status) {
   return String(status || "").trim().toLowerCase() === "pending";
+}
+function createIdempotencyKey() {
+  if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
 }
 export function Home() {
   const [d, setD] = useState(null);
@@ -662,6 +667,7 @@ export function Checkout() {
       }
       const r = await api("/orders", {
         method: "POST",
+        headers: { "Idempotency-Key": createIdempotencyKey() },
         body: JSON.stringify({ shipping: form, couponCode }),
       });
       if (paymentMethod === "COD") {
@@ -685,6 +691,7 @@ export function Checkout() {
       const razorpay = new window.Razorpay({
         ...razorpayUpiConfig,
         key: payment.keyId,
+        order_id: payment.order.id,
         amount: payment.order.amount,
         currency: payment.order.currency,
         name: "CURVE",
@@ -692,13 +699,14 @@ export function Checkout() {
         prefill: { name: form.name, email: form.email, contact: form.mobile },
         handler: async (result) => {
           try {
+            console.info("[RAZORPAY_CHECKOUT_CALLBACK]", { internalOrderId: r.id, razorpayOrderId: result.razorpay_order_id || result.razorpayOrderId, razorpayPaymentId: result.razorpay_payment_id || result.razorpayPaymentId, signaturePresent: Boolean(result.razorpay_signature || result.razorpaySignature), signatureLength: (result.razorpay_signature || result.razorpaySignature || "").length });
             await api("/payments/razorpay/verify", {
               method: "POST",
               body: JSON.stringify({
                 orderId: r.id,
-                razorpayOrderId: result.razorpay_order_id,
-                razorpayPaymentId: result.razorpay_payment_id,
-                razorpaySignature: result.razorpay_signature,
+                razorpayOrderId: result.razorpay_order_id || result.razorpayOrderId,
+                razorpayPaymentId: result.razorpay_payment_id || result.razorpayPaymentId,
+                razorpaySignature: result.razorpay_signature || result.razorpaySignature,
               }),
             });
             nav(`/order-success?order=${r.orderCode}`);
@@ -706,7 +714,7 @@ export function Checkout() {
             alert(error.message);
           }
         },
-        modal: { ondismiss: () => alert("Payment was not completed. You can continue it from My Account > Orders.") },
+        modal: { ondismiss: async () => { await api(`/payments/${r.id}/cancel`, { method: "POST", body: JSON.stringify({ reason: "Checkout dismissed" }) }).catch(() => {}); alert("Payment was not completed. The order was cancelled."); } },
       });
       logRazorpayCheckout(payment.order.id, {
         ...razorpayUpiConfig,
@@ -834,7 +842,7 @@ export function ContinuePayment() {
     try {
       const payment = await api("/payments/razorpay/order", { method: "POST", body: JSON.stringify({ orderId: order.id }) });
       if (!window.Razorpay) await new Promise((resolve, reject) => { const script = document.createElement("script"); script.src = "https://checkout.razorpay.com/v1/checkout.js"; script.onload = resolve; script.onerror = () => reject(new Error("Unable to load payment checkout")); document.body.appendChild(script); });
-      const options = { ...razorpayUpiConfig, key: payment.keyId, amount: payment.order.amount, currency: payment.order.currency, name: "CURVE", description: `Order ${order.order_code}`, handler: async (result) => { try { await api("/payments/razorpay/verify", { method: "POST", body: JSON.stringify({ orderId: order.id, razorpayOrderId: result.razorpay_order_id, razorpayPaymentId: result.razorpay_payment_id, razorpaySignature: result.razorpay_signature }) }); nav("/account?tab=orders"); } catch (error) { alert(error.message); } }, modal: { ondismiss: () => alert("Payment was not completed. You can try again later.") } };
+      const options = { ...razorpayUpiConfig, key: payment.keyId, order_id: payment.order.id, amount: payment.order.amount, currency: payment.order.currency, name: "CURVE", description: `Order ${order.order_code}`, handler: async (result) => { try { await api("/payments/razorpay/verify", { method: "POST", body: JSON.stringify({ orderId: order.id, razorpayOrderId: result.razorpay_order_id || result.razorpayOrderId, razorpayPaymentId: result.razorpay_payment_id || result.razorpayPaymentId, razorpaySignature: result.razorpay_signature || result.razorpaySignature }) }); nav("/account?tab=orders"); } catch (error) { alert(error.message); } }, modal: { ondismiss: async () => { await api(`/payments/${order.id}/cancel`, { method: "POST", body: JSON.stringify({ reason: "Payment checkout dismissed" }) }).catch(() => {}); alert("Payment was not completed. The order was cancelled."); } } };
       logRazorpayCheckout(payment.order.id, options);
       new window.Razorpay(options).open();
     } catch (error) { alert(error.message); }

@@ -175,6 +175,7 @@ CREATE TABLE application_history (
 CREATE TABLE orders (
   id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
   order_code VARCHAR(40) NOT NULL UNIQUE,
+  idempotency_key VARCHAR(100) NOT NULL UNIQUE,
   user_id BIGINT UNSIGNED NOT NULL,
   subtotal DECIMAL(12,2) NOT NULL,
   discount DECIMAL(12,2) NOT NULL DEFAULT 0,
@@ -237,9 +238,23 @@ CREATE TABLE payments (
   provider_payment_id VARCHAR(180) NULL,
   amount DECIMAL(12,2) NOT NULL,
   status VARCHAR(60) NOT NULL DEFAULT 'created',
-  raw_reference VARCHAR(500) NULL,
+  raw_reference TEXT NULL,
+  authorized_at DATETIME NULL,
+  captured_at DATETIME NULL,
+  failed_at DATETIME NULL,
+  cancelled_at DATETIME NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+  UNIQUE KEY uq_payment_provider_order(provider, provider_order_id),
+  UNIQUE KEY uq_payment_provider_payment(provider, provider_payment_id)
+);
+
+CREATE TABLE invoices (
+  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  order_id BIGINT UNSIGNED NOT NULL UNIQUE,
+  invoice_number VARCHAR(60) NOT NULL UNIQUE,
+  issued_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
 );
 
