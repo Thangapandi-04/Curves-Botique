@@ -1,0 +1,453 @@
+Build a complete, production-ready, responsive ecommerce web application called CURVE for a premium women's fashion boutique. This must be a real dynamic application, not a static visual prototype. Use a persistent backend/database, authentication, role-based access, ecommerce functionality, and two separate protected panels: USER PANEL and ADMIN PANEL. The application must be manageable by a non-technical administrator without coding or developer involvement.
+
+==================================================
+BRAND & DESIGN
+==================================================
+Brand: CURVE
+Business: Premium women's fashion boutique.
+Style: Elegant, premium, feminine, modern, sophisticated, minimal and fashion-forward.
+Colors: cream/warm off-white, black/charcoal, soft blush pink and subtle beige/brown accents.
+Use premium editorial fashion imagery, elegant typography, clean whitespace and subtle animations. Avoid excessive colors, gradients and animations. Keep the existing CURVE logo/brand identity if available.
+Fully responsive on desktop, laptop, tablet and mobile.
+
+==================================================
+PUBLIC WEBSITE
+==================================================
+Create:
+Home, Shop, New Arrivals, Categories, Offers, About Us, Reviews, Contact, Application Form, Login, Register, Cart, Checkout, Order Tracking, My Account, Privacy Policy, Terms & Conditions, Shipping Policy, Return & Refund Policy.
+
+Header:
+CURVE logo | Home | Shop | New Arrivals | Categories | Offers | About Us | Reviews | Contact | Application | Search | Account | Cart.
+Use responsive mobile hamburger navigation.
+
+==================================================
+HOMEPAGE
+==================================================
+Create these sections in order:
+1. Hero/Carousel
+2. Shop by Category
+3. New Arrivals
+4. Best Sellers
+5. Promotional Banner
+6. Fashion Video Grid
+7. Why Choose CURVE
+8. Customer Reviews
+9. Newsletter
+10. Footer
+
+Default hero:
+Title: "Elegance, Curated for You."
+Subtitle: "Discover timeless Indian fashion, thoughtfully selected for the modern woman."
+Button: "SHOP COLLECTION"
+
+Hero content must be database-driven and editable from Admin.
+
+==================================================
+CAROUSEL / HERO MANAGEMENT
+==================================================
+Admin must be able to Add, Edit, Delete, Upload Image, Set Title, Subtitle, Button Text, Button URL, Reorder and Enable/Disable slides. Use database records. Public website displays active slides automatically. Support drag-and-drop ordering where possible.
+
+==================================================
+SHOP BY CATEGORY
+==================================================
+Initial categories:
+Sarees, Kurtis, Dresses, Tops, Jewellery, Handbags, Accessories.
+
+Each category has name, description, image, status and display order. Admin can add, edit, delete, reorder, enable/disable categories. Category cards link to the relevant product listing.
+
+==================================================
+PRODUCT SYSTEM
+==================================================
+Create a complete dynamic product system.
+
+Product fields:
+Product Name, SKU, Description, Short Description, Product Images, Gallery Images, Price, Sale Price, Category, Subcategory, Stock Quantity, Stock Status, Sizes, Colors, Material, Care Instructions, Product Tags, Featured, New Arrival, Best Seller, Offer, Active/Inactive and Display Order.
+
+Support product variations such as sizes XS, S, M, L, XL, XXL and custom sizes/colors. Admin must be able to create custom variations.
+
+==================================================
+PRODUCT PAGE
+==================================================
+Display:
+Large image/gallery, product name, rating, price, sale price, discount, size selection, color selection, quantity, stock availability, Add to Cart, Buy Now, Wishlist, description, material, size information, care instructions, shipping information, return information and related products.
+
+Prevent purchase of unavailable/out-of-stock products.
+
+==================================================
+SEARCH, FILTER & SORT
+==================================================
+Search products. Filter by category, price, size, color, availability, New Arrivals, Best Sellers and Offers.
+Sort by Newest, Price Low-High, Price High-Low, Popular and Best Rated.
+Make filters mobile-friendly.
+
+==================================================
+USER AUTHENTICATION
+==================================================
+Create secure user registration, login, logout and password reset.
+
+Registration fields:
+Full Name, Email, Mobile Number, Password, Confirm Password, optional Date of Birth, optional Gender, Address, City, State, PIN/Postal Code, Country and Terms acceptance.
+
+Validate required fields, email, phone and password. Never store plain-text passwords.
+
+Roles:
+USER and ADMIN.
+Use secure role-based authentication and authorization. Users must never access Admin functions.
+
+==================================================
+APPLICATION FORM
+==================================================
+Create a dedicated Customer Application Form accessible from the public website and User Panel.
+
+Fields:
+Full Name, Email, Mobile Number, Date of Birth, Gender, Address, City, State, PIN/Postal Code, Country, Preferred Fashion Category, Preferred Size, Preferred Contact Method, Instagram/Social Media optional, Additional Message, optional Image/Document Upload and Terms & Conditions acceptance.
+
+Use clear labels, required validation, email/phone validation, file validation, success/error messages, Submit and Reset buttons.
+
+On submission:
+- Save application to database.
+- Generate unique Application ID.
+- Show confirmation.
+- Make it visible to Admin.
+- Allow User to view its status.
+
+Application statuses:
+Submitted, Under Review, Approved, Rejected, More Information Required, Completed.
+
+User can see Application ID, application date, status, last updated date and appropriate admin comments. If "More Information Required", allow user to submit additional information.
+
+Applications are private and must not be publicly accessible.
+
+==================================================
+USER PANEL
+==================================================
+Create a private User Dashboard containing:
+
+Dashboard
+My Profile
+Application Form
+My Applications
+My Orders
+Order Tracking
+Wishlist
+Saved Addresses
+Change Password
+Notifications
+Logout
+
+Dashboard should show welcome message, application status, recent orders, wishlist count and account information.
+
+User can edit profile and addresses, submit/view applications, shop products, wishlist products, checkout, view orders and track orders.
+
+Users must only see their own personal data, applications, wishlist and orders.
+
+==================================================
+CART
+==================================================
+Create functional shopping cart displaying:
+Product, Image, Selected Size, Selected Color, Quantity, Unit Price, Discount, Subtotal, Shipping and Total.
+
+Allow increase/decrease quantity, remove item, continue shopping and checkout. Validate inventory before checkout.
+
+==================================================
+CHECKOUT & PAYMENT
+==================================================
+Checkout fields:
+Full Name, Email, Mobile, Address, City, State, PIN/Postal Code, Country.
+
+Show Products, Quantity, Subtotal, Shipping, Discount and Final Total.
+
+Create integration-ready architecture for:
+Online Payment, UPI where supported, Cards, Net Banking and Cash on Delivery where enabled.
+
+Do not create fake payment processing. Do not store card information. If payment provider credentials/API keys are required, provide secure configuration points and never expose secrets in frontend code. Payment must only be marked successful after actual provider confirmation.
+
+==================================================
+ORDERS
+==================================================
+Create dynamic order management.
+
+Order data:
+Order ID, Customer, Products, Variations, Quantity, Prices, Discount, Shipping, Total, Payment Status, Order Status, Date and Tracking Information.
+
+Statuses:
+Pending, Payment Pending, Paid, Processing, Packed, Shipped, Out for Delivery, Delivered, Cancelled, Returned, Refunded.
+
+==================================================
+WISHLIST
+==================================================
+Users can add/remove products, view wishlist and move products to cart. Wishlist must be private to each user.
+
+==================================================
+ADMIN PANEL
+==================================================
+Create a completely separate private Admin Panel protected by authentication and role-based authorization.
+
+Admin sidebar:
+Dashboard
+Products
+Categories
+Orders
+Customers
+Applications
+Carousel
+Videos
+Homepage
+Promotions
+Reviews
+Discounts
+Media
+Shipping
+Payments
+Settings
+Logout
+
+==================================================
+ADMIN DASHBOARD
+==================================================
+Show:
+Total Products, Total Customers, Total Orders, Pending Orders, Total Applications, Pending Applications, sales summary where supported, Recent Orders, Recent Applications and Low Stock Products.
+
+Use clean cards, tables, search, filters and responsive layouts.
+
+==================================================
+ADMIN PRODUCT MANAGEMENT
+==================================================
+Admin can:
+Add, Edit, Delete, Duplicate Products; Upload/Manage Images and Gallery; Change Price/Sale Price; Manage Stock; Manage Sizes/Colors; Assign Categories; Add Tags; Set Featured/New Arrival/Best Seller/Offer; Enable/Disable Products; Reorder Products.
+
+Require confirmation before destructive deletion.
+
+==================================================
+ADMIN APPLICATION MANAGEMENT
+==================================================
+Dedicated Applications page.
+
+Admin can:
+View, Search, Filter and Open Applications; view submitted information and permitted uploaded files; change status; add internal/admin comments; request more information; approve; reject; delete where appropriate.
+
+When Admin changes application status, the User Panel must automatically display the updated status.
+
+==================================================
+ADMIN ORDER MANAGEMENT
+==================================================
+Admin can view/search/filter orders, open order details, update order status, update payment status, add tracking number, add courier/shipping information, cancel orders and process refunds where supported.
+
+==================================================
+ADMIN CUSTOMER MANAGEMENT
+==================================================
+Admin can view/search customers, view customer profiles, order history and applications, and disable accounts where appropriate. Protect all customer data.
+
+==================================================
+ADMIN VIDEO MANAGEMENT
+==================================================
+Create a dedicated Video Management page.
+
+Admin can:
+Add, Edit, Delete videos; Upload Thumbnail; Upload supported video or provide video URL; Add Title, Description and Destination Link; Reorder; Enable/Disable.
+
+Homepage Video Grid must automatically display active database records.
+
+If direct video storage/upload is not supported, use a supported video URL/embed approach while keeping all video metadata editable by Admin.
+
+==================================================
+ADMIN HOMEPAGE MANAGEMENT
+==================================================
+Admin can manage:
+Hero, Carousel, Categories, New Arrivals, Best Sellers, Promotional Banners, Video Grid, Why CURVE, Reviews, Newsletter and Footer.
+
+Admin can edit text/images, enable/disable sections and reorder sections where technically supported. No code editing should be required.
+
+==================================================
+PROMOTIONS
+==================================================
+Create promotional banner management.
+
+Admin can:
+Add/Edit/Delete banners, upload images, set title/subtitle, button text/link, display order and active/inactive status.
+
+==================================================
+REVIEWS
+==================================================
+Create customer review management.
+
+Admin can Add, Edit, Delete, Approve/Reject and Reorder reviews.
+
+Reviews can contain Customer Name, Rating, Review Text and optional image.
+
+Do not present sample/demo reviews as genuine customer reviews.
+
+==================================================
+DISCOUNTS & COUPONS
+==================================================
+Admin can create/manage:
+Percentage discounts, fixed discounts, coupon codes, minimum order value, maximum discount where applicable, expiry date, usage limits and active/inactive status.
+
+==================================================
+MEDIA MANAGEMENT
+==================================================
+Create a media management area for:
+Product images, category images, hero images, promotional banners and video thumbnails.
+
+Validate file types and sizes. Optimize images where possible.
+
+==================================================
+SETTINGS
+==================================================
+Admin can manage:
+Store Name, CURVE Logo, Contact Email, Phone, WhatsApp, Address, Social Media URLs, Currency, Shipping Rules, Return Policy, Payment Configuration, Tax Configuration where applicable and Store Status.
+
+Default currency: INR / ₹.
+
+==================================================
+DATABASE / BACKEND
+==================================================
+Use a persistent backend/database.
+
+Store:
+Users, Roles, User Profiles, Applications, Application Status/History, Products, Product Variations, Categories, Inventory, Orders, Order Items, Customers, Carousel Slides, Videos, Homepage Content, Promotional Banners, Reviews, Coupons, Notifications and Store Settings.
+
+Dynamic products, applications, carousel slides, videos, banners and homepage content must come from the database and must NOT be hard-coded into the frontend.
+
+==================================================
+NOTIFICATIONS
+==================================================
+When an application is submitted, show confirmation and make it visible to Admin.
+
+When Admin changes application status, update the User Panel and show an appropriate notification.
+
+Do not claim Email/SMS/WhatsApp notifications are active unless the required service is actually configured.
+
+==================================================
+SECURITY
+==================================================
+Implement:
+Secure authentication, role-based authorization, protected Admin/User routes, password hashing, input validation, server-side validation, secure file uploads, protection against unauthorized data access and secure handling of customer information.
+
+Never expose passwords, API keys, payment secrets or sensitive backend information in frontend code.
+
+==================================================
+SEO
+==================================================
+Implement:
+SEO-friendly URLs, page titles, meta descriptions, product/category SEO fields, image alt text, proper heading hierarchy, sitemap support where available and social sharing metadata where supported.
+
+Allow Admin to edit SEO fields.
+
+==================================================
+PERFORMANCE
+==================================================
+Optimize images, lazy loading, database queries and page loading. Avoid unnecessary animations. Prioritize mobile performance.
+
+==================================================
+ACCESSIBILITY
+==================================================
+Use readable typography, sufficient contrast, alt text, accessible buttons, clear labels, keyboard-friendly controls where possible and understandable validation/error messages.
+
+==================================================
+ADMIN USABILITY
+==================================================
+The administrator is a non-technical person.
+
+Admin must NOT need to edit:
+HTML, CSS, JavaScript, source code or database records manually.
+
+Use visual forms, image upload controls, dropdowns, checkboxes, toggles, search, filters, clear Save/Cancel buttons, confirmation dialogs and success/error messages.
+
+Admin must be able to manage the complete store through the Admin Panel.
+
+==================================================
+USER EXPERIENCE
+==================================================
+Customer flow:
+Public Website → Register/Login → User Panel → Complete Application Form → Application Submitted → Admin Review → User sees Application Status → Shop → Product → Select Size/Color → Cart → Checkout → Payment → Order Confirmation → Order Tracking.
+
+Admin flow:
+Admin Login → Dashboard → Applications → Products → Categories → Inventory → Orders → Customers → Carousel → Videos → Homepage → Promotions → Reviews → Discounts → Settings.
+
+==================================================
+DYNAMIC CONTENT REQUIREMENT
+==================================================
+All of the following must be dynamically managed through the Admin Panel:
+Products
+Categories
+Inventory
+Prices
+Product Images
+Carousel Slides
+Hero Content
+Videos
+Video Thumbnails
+Promotional Banners
+Homepage Content
+Reviews
+Discounts
+Orders
+Customers
+Applications
+Store Settings
+
+When Admin changes any dynamic content, the public website must automatically display the updated information without developer/source-code changes.
+
+==================================================
+BUILD PRIORITY
+==================================================
+Build and test in this order:
+
+1. Public website and premium design
+2. Persistent backend/database
+3. Authentication and roles
+4. User Panel
+5. Admin Panel
+6. Application Form
+7. Application Management
+8. Product/Category/Inventory Management
+9. Dynamic Homepage
+10. Carousel Management
+11. Video Management
+12. Cart
+13. Checkout
+14. Orders
+15. Customers
+16. Wishlist
+17. Reviews
+18. Discounts
+19. Shipping and Payment integration structure
+20. SEO
+21. Security
+22. Performance
+23. Desktop/tablet/mobile testing
+
+==================================================
+FINAL REQUIREMENT
+==================================================
+Build CURVE as a real maintainable ecommerce application with:
+
+PUBLIC WEBSITE
++ USER PANEL
++ ADMIN PANEL
++ CUSTOMER APPLICATION FORM
++ AUTHENTICATION
++ DATABASE/BACKEND
++ PRODUCTS
++ PRODUCT VARIATIONS
++ INVENTORY
++ CATEGORIES
++ SEARCH/FILTER
++ WISHLIST
++ CART
++ CHECKOUT
++ PAYMENTS INTEGRATION STRUCTURE
++ ORDERS
++ APPLICATION MANAGEMENT
++ CAROUSEL MANAGEMENT
++ VIDEO MANAGEMENT
++ HOMEPAGE MANAGEMENT
++ CUSTOMER MANAGEMENT
++ REVIEWS
++ DISCOUNTS
++ SETTINGS
+
+The administrator must be able to operate the complete website without coding or developer assistance. Users must have their own secure accounts and must only access their own information. Keep all data dynamic and database-driven.
+
+Do not automatically publish. Keep the application in preview/testing state until the administrator explicitly chooses to publish it. Do not claim any external payment, shipping, email, SMS or WhatsApp integration is live unless it has actually been configured and tested.
