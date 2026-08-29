@@ -24,6 +24,6 @@ app.use('/uploads',express.static(path.resolve(process.env.UPLOAD_DIR||'../uploa
 app.get('/',(_,res)=>res.json({service:'curve-api',status:'running',health:'/api/health',frontend:process.env.CLIENT_ORIGIN||'http://localhost:5173'}));
 app.get('/api/health',async(_,res)=>{try{await pool.query('SELECT 1');res.json({ok:true,service:'curve-api',database:'mysql'})}catch{res.status(503).json({ok:false,database:'unavailable'})}});
 app.use('/api',routes);
-app.use((err,req,res,_next)=>{const status=err.status||((err.code==='ER_DUP_ENTRY')?409:500);console.error('[API_ERROR]',JSON.stringify({method:req.method,path:req.originalUrl,status,code:err.code||null,errno:err.errno||null,sqlState:err.sqlState||null,message:err.message||'Internal server error'}));res.status(status).json({message:err.name==='ZodError'?err.issues.map(x=>x.message).join(', '):(err.message||'Internal server error')});});
+app.use((err,req,res,_next)=>{const status=err.status||((err.code==='ER_DUP_ENTRY')?409:500);console.error('[API_ERROR]',JSON.stringify({method:req.method,path:req.originalUrl,status,code:err.code||null,errno:err.errno||null,sqlState:err.sqlState||null,message:err.message||'Internal server error',responseBody:err.responseBody||null,missing:err.missing||null,stack:err.stack}));res.status(status).json({message:err.name==='ZodError'?err.issues.map(x=>x.message).join(', '):(err.message||'Internal server error')});});
 const port=Number(process.env.PORT||5000);
 app.listen(port,()=>console.log(`CURVE API running on http://localhost:${port}`));

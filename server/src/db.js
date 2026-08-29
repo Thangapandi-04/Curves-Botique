@@ -26,3 +26,15 @@ export async function tx(fn) {
     throw err;
   } finally { conn.release(); }
 }
+
+// Idempotent migration for databases created before whatsapp_confirmation_sent_at existed.
+// Fresh installs already get the column from database/schema.sql. INFORMATION_SCHEMA is checked
+// first because this MySQL version does not support ADD COLUMN IF NOT EXISTS.
+pool.query(
+  "SELECT COUNT(*) AS count FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'orders' AND COLUMN_NAME = 'whatsapp_confirmation_sent_at'"
+)
+  .then(([[{ count }]]) => {
+    if (count) return;
+    return pool.query('ALTER TABLE orders ADD COLUMN whatsapp_confirmation_sent_at DATETIME NULL');
+  })
+  .catch((error) => console.error('[DB_MIGRATION] Unable to ensure whatsapp_confirmation_sent_at column', error.message));

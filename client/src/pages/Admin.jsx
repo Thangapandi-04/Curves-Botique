@@ -16,6 +16,7 @@ import {
   X,
   Save,
   Trash2,
+  Bell,
 } from "lucide-react";
 import { useApp } from "../context";
 const tabs = [
@@ -25,6 +26,7 @@ const tabs = [
   ["best-sellers", "Best Sellers", Package],
   ["categories", "Categories", Layers],
   ["orders", "Orders", ShoppingCart],
+  ["notifications", "Notifications", Bell],
   ["customers", "Customers", Users],
   ["carousel", "Carousel", ImageIcon],
   ["videos", "Videos", Video],
@@ -79,6 +81,16 @@ export default function Admin() {
   const [tab, setTab] = useState("dashboard");
   const [data, setData] = useState({});
   const [mobile, setMobile] = useState(false);
+  const [codPendingCount, setCodPendingCount] = useState(0);
+  async function loadCodPendingCount() {
+    try {
+      const r = await api("/admin/stats");
+      setCodPendingCount(r.codPendingCount || 0);
+    } catch {}
+  }
+  useEffect(() => {
+    loadCodPendingCount();
+  }, []);
   async function load() {
     const endpoints = {
       dashboard: "/admin/stats",
@@ -87,6 +99,7 @@ export default function Admin() {
       "best-sellers": "/admin/products",
       categories: "/admin/categories",
       orders: "/admin/orders",
+      notifications: "/me/notifications",
       customers: "/admin/customers",
       reviews: "/admin/reviews",
       discounts: "/admin/coupons",
@@ -102,6 +115,7 @@ export default function Admin() {
       const r = await api(e);
       if (tab === "reviews") r.users = (await api("/admin/review-users")).users;
       setData(r);
+      if (tab === "orders") loadCodPendingCount();
     } catch (err) {
       alert(err.message);
     }
@@ -130,6 +144,11 @@ export default function Admin() {
           >
             <I size={17} />
             {l}
+            {k === "orders" && codPendingCount > 0 && (
+              <span className="nav-badge" title="COD orders awaiting payment collection">
+                {codPendingCount}
+              </span>
+            )}
           </button>
         ))}
       </aside>
@@ -177,7 +196,10 @@ export default function Admin() {
           <Products d={data} reload={load} initialHomepageFilter="best-sellers" />
         )} {" "}
         {tab === "categories" && <Categories d={data} reload={load} />}{" "}
-        {tab === "orders" && <Orders d={data} reload={load} />}{" "}
+        {tab === "orders" && (
+          <Orders d={data} reload={load} codPendingCount={codPendingCount} />
+        )}{" "}
+        {tab === "notifications" && <AdminNotifications d={data} />}{" "}
         {tab === "customers" && <Customers d={data} reload={load} />}{" "}
         {tab === "carousel" && <Carousel d={data} reload={load} />}{" "}
         {tab === "videos" && <Videos d={data} reload={load} />}{" "}
@@ -582,7 +604,15 @@ function Products({ d, reload, initialHomepageFilter = "all" }) {
                           altText: image.alt_text || "",
                           displayOrder: image.display_order || 0,
                         })),
-                        variants: p.variants || [],
+                        variants: (p.variants || []).map((variant) => ({
+                          size: variant.size || "",
+                          color: variant.color || "",
+                          sku: variant.sku || "",
+                          priceOverride: variant.price_override ?? "",
+                          salePriceOverride: variant.sale_price_override ?? "",
+                          stockQuantity: variant.stock_quantity ?? 0,
+                          active: variant.active !== false,
+                        })),
                       });
                     }}
                   >
@@ -721,7 +751,21 @@ function Categories({ d, reload }) {
     </div>
   );
 }
-function Orders({ d, reload }) {
+function AdminNotifications({ d }) {
+  return (
+    <div className="table-card">
+      {!(d.notifications || []).length && <p>No notifications yet.</p>}
+      {(d.notifications || []).map((n) => (
+        <div className={`notification ${n.is_read ? "read" : ""}`} key={n.id}>
+          <strong>{n.title}</strong>
+          <p>{n.message}</p>
+          <small>{new Date(n.created_at).toLocaleString("en-IN")}</small>
+        </div>
+      ))}
+    </div>
+  );
+}
+function Orders({ d, reload, codPendingCount = 0 }) {
   const statuses = [
     "Pending",
     "Payment Pending",
@@ -735,8 +779,22 @@ function Orders({ d, reload }) {
     "Returned",
     "Refunded",
   ];
+  async function collectCodPayment(orderId) {
+    if (!confirm("Confirm that COD payment has actually been collected for this order?")) return;
+    try {
+      await api(`/admin/orders/${orderId}/collect-cod-payment`, { method: "POST" });
+      reload();
+    } catch (error) {
+      alert(error.message);
+    }
+  }
   return (
     <div className="table-card">
+      {codPendingCount > 0 && (
+        <p className="cod-pending-banner">
+          COD Pending: <strong>{codPendingCount}</strong> order(s) awaiting payment collection
+        </p>
+      )}
       <table>
         <thead>
           <tr>
@@ -755,7 +813,16 @@ function Orders({ d, reload }) {
               <td>{o.order_code}</td>
               <td>{o.full_name}</td>
               <td>₹{Number(o.total).toLocaleString("en-IN")}</td>
-              <td>{o.payment_status}</td>
+              <td>
+                {o.payment_status}
+                {o.payment_type === "COD" && o.cod_payment_status && (
+                  <div>
+                    <span className="status">
+                      {o.cod_payment_status === "cod_paid" ? "COD_PAID" : "COD_PENDING"}
+                    </span>
+                  </div>
+                )}
+              </td>
               <td>{o.payment_type === "COD" ? "COD" : "Razorpay"}</td>
               <td>
                 <select
@@ -776,7 +843,15 @@ function Orders({ d, reload }) {
                   ))}
                 </select>
               </td>
-              <td>{o.email} <a className="text-link" href={`${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/admin/orders/${o.id}/invoice`} download>Invoice</a></td>
+              <td>
+                {o.email}{" "}
+                <a className="text-link" href={`${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/admin/orders/${o.id}/invoice`} download>Invoice</a>
+                {o.payment_type === "COD" && o.cod_payment_status === "cod_pending" && (
+                  <button className="text-link" onClick={() => collectCodPayment(o.id)}>
+                    Mark COD Paid
+                  </button>
+                )}
+              </td>
             </tr>
           ))}
         </tbody>
@@ -784,6 +859,7 @@ function Orders({ d, reload }) {
     </div>
   );
 }
+
 function Customers({ d, reload }) {
   return (
     <div className="table-card">

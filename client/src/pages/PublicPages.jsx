@@ -1532,6 +1532,91 @@ function Profile({ user }) {
   );
 }
 
+export function Reviews() {
+  const { user } = useApp();
+  const [reviews, setReviews] = useState([]);
+  const [form, setForm] = useState({ rating: 5, reviewText: "" });
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  function load() {
+    api("/reviews")
+      .then((r) => setReviews(r.reviews))
+      .catch(console.error);
+  }
+  useEffect(load, []);
+  async function submit(e) {
+    e.preventDefault();
+    if (!form.reviewText.trim()) return;
+    setSubmitting(true);
+    try {
+      await api("/reviews", { method: "POST", body: JSON.stringify(form) });
+      setForm({ rating: 5, reviewText: "" });
+      setSubmitted(true);
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setSubmitting(false);
+    }
+  }
+  return (
+    <div className="page">
+      <div className="container narrow content-page">
+        <span className="eyebrow">CURVE</span>
+        <h1>Customer Reviews</h1>
+        <p>Real feedback from CURVE customers, approved by our team before publishing.</p>
+        {user ? (
+          submitted ? (
+            <p>Thank you! Your review has been submitted for approval.</p>
+          ) : (
+            <form className="form-card narrow-form" onSubmit={submit}>
+              <label>
+                Rating
+                <select
+                  value={form.rating}
+                  onChange={(e) => setForm({ ...form, rating: Number(e.target.value) })}
+                >
+                  {[5, 4, 3, 2, 1].map((n) => (
+                    <option key={n} value={n}>
+                      {n} star{n > 1 ? "s" : ""}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Your review
+                <textarea
+                  value={form.reviewText}
+                  onChange={(e) => setForm({ ...form, reviewText: e.target.value })}
+                  required
+                />
+              </label>
+              <button className="btn btn-dark" disabled={submitting}>
+                {submitting ? "Submitting..." : "SUBMIT REVIEW"}
+              </button>
+            </form>
+          )
+        ) : (
+          <p>
+            <Link to="/login">Log in</Link> to write a review.
+          </p>
+        )}
+        <div className="table-card">
+          {!reviews.length && <p>No approved reviews yet.</p>}
+          {reviews.map((r) => (
+            <div className="notification" key={r.id}>
+              <strong>
+                {r.customer_name} · {"★".repeat(r.rating)}
+                {"☆".repeat(5 - r.rating)}
+              </strong>
+              <p>{r.review_text}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function Static({ title, children }) {
   const [settings, setSettings] = useState({});
   useEffect(() => {

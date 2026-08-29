@@ -46,3 +46,5 @@
 .new-arrival-media>a:after{border-radius:var(--bubble-start);transition:border-radius .8s cubic-bezier(.4,0,.2,1)}
 .new-arrival-media:hover>a,.new-arrival-media:hover>a:after{border-radius:var(--bubble-hover)}
 .new-arrival-media:hover>a{box-shadow:inset 10px 8px 18px rgba(255,255,255,.24),inset -12px -10px 22px rgba(130,91,172,.15),0 0 24px rgba(206,164,218,.16)}
+
+.admin-side button{position:relative}.nav-badge{background:#c0392b;color:#fff;border-radius:999px;font-size:11px;font-weight:700;padding:1px 7px;margin-left:auto}.cod-pending-banner{background:#fdecea;color:#c0392b;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:12px}.notification{white-space:pre-line}
